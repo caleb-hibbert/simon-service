@@ -1,31 +1,25 @@
-const cookieParser = require('cookie-parser');
-const bcrypt = require('bcryptjs');
 const express = require('express');
-const uuid = require('uuid');
 const app = express();
 
-const authCookieName = 'token';
+const port = process.argv.length > 2 ? process.argv[2] : 3000;
 
-// The scores and users are saved in memory and disappear whenever the service is restarted.
+
+const cookieParser = require('cookie-parser');
+const bcrypt = require('bcryptjs');
+const uuid = require('uuid');
+
+const authCookieName = 'token'; // test?
+
+app.use(express.json());
+app.use(cookieParser()); //test?
+
 let users = [];
 let scores = [];
 
-// The service port. In production the front-end code is statically hosted by the service on the same port.
-const port = process.argv.length > 2 ? process.argv[2] : 3000;
-
-// JSON body parsing using built-in middleware
-app.use(express.json());
-
-// Use the cookie parser middleware for tracking authentication tokens
-app.use(cookieParser());
-
-// Serve up the front-end static content hosting
-app.use(express.static('public'));
-
-// Router for service endpoints
-var apiRouter = express.Router();
+let apiRouter = express.Router();
 app.use(`/api`, apiRouter);
 
+//-------------------------------------
 // CreateAuth a new user
 apiRouter.post('/auth/create', async (req, res) => {
   if (await findUser('email', req.body.email)) {
@@ -62,6 +56,7 @@ apiRouter.delete('/auth/logout', async (req, res) => {
   res.status(204).end();
 });
 
+
 // Middleware to verify that the user is authorized to call an endpoint
 const verifyAuth = async (req, res, next) => {
   const user = await findUser('token', req.cookies[authCookieName]);
@@ -92,7 +87,7 @@ app.use(function (err, req, res, next) {
 app.use((_req, res) => {
   res.sendFile('index.html', { root: 'public' });
 });
-
+//----------------------------------------
 // updateScores considers a new score for inclusion in the high scores.
 function updateScores(newScore) {
   let found = false;
@@ -142,6 +137,15 @@ function setAuthCookie(res, authToken) {
     sameSite: 'strict',
   });
 }
+//-----------------------------------------
+
+
+
+
+
+
+
+
 
 app.listen(port, () => {
   console.log(`Listening on port ${port}`);
