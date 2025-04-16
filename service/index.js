@@ -1,31 +1,20 @@
-const cookieParser = require('cookie-parser');
-const bcrypt = require('bcryptjs');
 const express = require('express');
-const uuid = require('uuid');
 const app = express();
-
-const authCookieName = 'token';
-
-// The scores and users are saved in memory and disappear whenever the service is restarted.
-let users = [];
-let scores = [];
-
-// The service port. In production the front-end code is statically hosted by the service on the same port.
 const port = process.argv.length > 2 ? process.argv[2] : 3000;
 
-// JSON body parsing using built-in middleware
+
+const cookieParser = require('cookie-parser');
+const bcrypt = require('bcryptjs');
+const uuid = require('uuid');
 app.use(express.json());
-
-// Use the cookie parser middleware for tracking authentication tokens
-app.use(cookieParser());
-
-// Serve up the front-end static content hosting
-app.use(express.static('public'));
-
-// Router for service endpoints
-var apiRouter = express.Router();
+let users = [];
+let scores = [];
+let apiRouter = express.Router();
 app.use(`/api`, apiRouter);
 
+
+
+//-------------------------------------------------------------------
 // CreateAuth a new user
 apiRouter.post('/auth/create', async (req, res) => {
   if (await findUser('email', req.body.email)) {
@@ -92,6 +81,7 @@ app.use(function (err, req, res, next) {
 app.use((_req, res) => {
   res.sendFile('index.html', { root: 'public' });
 });
+//------------------------------------------------------------
 
 // updateScores considers a new score for inclusion in the high scores.
 function updateScores(newScore) {
@@ -143,6 +133,14 @@ function setAuthCookie(res, authToken) {
     sameSite: 'strict',
   });
 }
+//-----------------------------------------------------------------------
+
+
+
+
+
+
+
 
 app.listen(port, () => {
   console.log(`Listening on port ${port}`);
