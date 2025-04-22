@@ -17,7 +17,7 @@ export function Authenticated(props) {
       })
       .finally(() => {
         localStorage.removeItem('userName');
-        props.onLogout();
+        navigate("/");
       });
   }
 
